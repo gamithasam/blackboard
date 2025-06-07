@@ -7,27 +7,47 @@ import subprocess
 from manim import *
 
 def generate_chatgpt_prompt(topic):
-    prompt = f'''Please help me create an educational animation about {topic}.
-Generate two things:
-1. A narration script split into 7-8 clear, concise sentences that explain the concept step by step.
-2. A Manim Scene class that animates this explanation synced with the narration.
+    prompt = f'''You are an expert in creating educational animations using Manim and narration scripting. Your task is to generate content for a tool that automatically creates narrated animations about {topic}.
 
-Format your response exactly like this:
+## Your Response Format
+Your response must follow this exact structure:
+
 ---NARRATION---
-[Your narration script here, with each sentence on a new line]
+[Write 7-8 clear, concise sentences explaining the concept, one per line]
 
 ---MANIM---
-[Your Manim Scene class code here]
+[Your Manim code here]
 
-Requirements for the narration:
-- Each sentence should correspond to one step in the animation
-- Keep sentences clear and concise
-- Total length should be around 60-90 seconds when spoken
+## Narration Requirements
+- Write exactly 7-8 sentences, each on its own line
+- Each sentence should explain one step or aspect of [TOPIC]
+- Keep sentences clear, concise, and educational
+- Total narration should be 60-90 seconds when spoken
+- Ensure a logical progression of ideas
 
-Requirements for the Manim code:
-- Use a Scene class named "NarratedScene"
-- Sync animations with audio using self.add_sound() and self.wait()
-- Include placeholder comments for audio durations that will be replaced later'''
+## Manim Code Requirements
+1. Use `class NarratedScene(Scene):` as your class name
+2. Include synchronized audio with animations using:
+   ```python
+   self.add_sound("media/audio/line_0.wav")
+   self.wait(#DURATION_0#)  # This placeholder will be replaced with the actual audio duration
+3. For each line of narration, add corresponding animation(s) with matching audio placeholders
+4. Use placeholder #DURATION_0#, #DURATION_1#, etc. for each audio line's wait time
+5. Follow these layout and positioning best practices:
+    - Group related objects using VGroup
+    - Arrange objects appropriately with .arrange(DIRECTION, buff=spacing) where DIRECTION could be UP, DOWN, LEFT, RIGHT
+    - Choose arrangement directions that make sense for your specific concept
+    - Use .shift() for positioning rather than absolute coordinates
+    - Place text with .next_to(object, DIRECTION, buff=value) to ensure proper spacing
+    - For any connections between objects, use get_center() for proper alignment
+    - Use appropriate stroke_width for lines to ensure readability
+6. Use clear visual distinctions:
+    - Use different colors for different types of objects
+    - Size elements appropriately (font_size, radius) based on their importance
+    - Position labels consistently relative to their objects
+7. Ensure all imports are properly included at the top
+8. Avoid hardcoded coordinates - position everything relative to other objects
+Remember that your code will be executed exactly as written, so it must be syntactically correct and follow Manim conventions.'''
 
     return prompt
 
