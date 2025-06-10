@@ -26,8 +26,8 @@ struct HomeView: View {
         } detail: {
             VStack {
                 ZStack {
-                    if let url = videoURL {
-                        VideoPlayer(player: player ?? AVPlayer())
+                    if let playr = player {
+                        VideoPlayer(player: playr)
                             .aspectRatio(16/9, contentMode: .fit)
                             .cornerRadius(12)
                             .padding()
@@ -107,7 +107,6 @@ struct HomeView: View {
     
     private func loadvid() {
         if let url = Bundle.main.url(forResource: "test", withExtension: "mp4") {
-            self.videoURL = url
             self.player = AVPlayer(url: url)
             setupAudioMonitoring()
         }
