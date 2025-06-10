@@ -12,12 +12,16 @@ import AVFoundation
 
 struct HomeView: View {
     @State private var isProcessing: Bool = false
+    @State private var showPrompt: Bool = false
     @State private var videoURL: URL?
     @State private var inputText: String = ""
     @State private var audioLevel: Float = 0.0
     @State private var player: AVPlayer?
     @State private var cancellables = Set<AnyCancellable>()
     @State private var audioEngine: AVAudioEngine?
+    @AppStorage("useAPIMode") private var useAPIMode: Bool = true
+//    @AppStorage("apiKey") private var apiKey: String = ""
+//    @AppStorage("selectedVoice") private var selectedVoice: String = "Alison Dietlinde"
     
     var body: some View {
         NavigationSplitView {
@@ -42,6 +46,16 @@ struct HomeView: View {
                         ProgressView("Generating...")
                             .progressViewStyle(CircularProgressViewStyle())
                             .padding()
+                    } else if showPrompt {
+                        VStack(spacing: 8) {
+                            Text("Send the copied prompt to your favorite AI chatbot")
+                                .font(.headline)
+                            Text("Then paste the response you get below")
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                        }
+                        .multilineTextAlignment(.center)
+                        .padding()
                     } else {
                         Text("What do you want to learn today?")
                             .font(.title)
@@ -53,7 +67,7 @@ struct HomeView: View {
                 Spacer()
                 
                 HStack(alignment: .bottom, spacing: 12) {
-                    TextField("Type your topic...", text: $inputText, axis: .vertical)
+                    TextField(showPrompt ? "Paste the response here..." : "Type your topic...", text: $inputText, axis: .vertical)
                         .textFieldStyle(.plain)
                         .font(.system(size: 16, weight: .medium))
                         .foregroundColor(.primary)
@@ -77,7 +91,14 @@ struct HomeView: View {
                     Button(action: {
                         withAnimation(.spring(response: 0.4, dampingFraction: 0.6)) {
                             // Handle send action
-                            loadvid()
+                            inputText = ""
+                            if !useAPIMode {
+                                if showPrompt {
+                                    isProcessing = true
+                                }
+                                showPrompt.toggle()
+                            }
+//                            loadvid()
                         }
                         
                     }) {
