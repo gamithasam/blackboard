@@ -15,5 +15,8 @@ struct Blackboard_AIApp: App {
         WindowGroup {
             ContentView()
         }
+        Settings {
+            SettingsView()
+        }
     }
 }
