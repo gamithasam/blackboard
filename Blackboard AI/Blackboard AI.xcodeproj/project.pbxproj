@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		0DD1A8D62DF9B390009E47CD /* PythonKit in Frameworks */ = {isa = PBXBuildFile; productRef = 0DD1A8D52DF9B390009E47CD /* PythonKit */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		0DFED8152DF5E2030010A42A /* Blackboard AI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Blackboard AI.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -23,6 +27,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0DD1A8D62DF9B390009E47CD /* PythonKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -65,6 +70,7 @@
 			);
 			name = "Blackboard AI";
 			packageProductDependencies = (
+				0DD1A8D52DF9B390009E47CD /* PythonKit */,
 			);
 			productName = "Blackboard AI";
 			productReference = 0DFED8152DF5E2030010A42A /* Blackboard AI.app */;
@@ -94,6 +100,9 @@
 			);
 			mainGroup = 0DFED80C2DF5E2030010A42A;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				0DD1A8D42DF9B390009E47CD /* XCRemoteSwiftPackageReference "PythonKit" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 0DFED8162DF5E2030010A42A /* Products */;
 			projectDirPath = "";
@@ -319,6 +328,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		0DD1A8D42DF9B390009E47CD /* XCRemoteSwiftPackageReference "PythonKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/pvieito/PythonKit";
+			requirement = {
+				branch = master;
+				kind = branch;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		0DD1A8D52DF9B390009E47CD /* PythonKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 0DD1A8D42DF9B390009E47CD /* XCRemoteSwiftPackageReference "PythonKit" */;
+			productName = PythonKit;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 0DFED80D2DF5E2030010A42A /* Project object */;
 }

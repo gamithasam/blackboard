@@ -95,6 +95,8 @@ struct HomeView: View {
                             if !useAPIMode {
                                 if showPrompt {
                                     isProcessing = true
+                                    engine(response: inputText)
+                                    inputText = ""
                                 } else {
                                     let prompt: String = """
                                 You are an expert in creating educational animations using Manim and narration scripting. Your task is to generate content for a tool that automatically creates narrated animations about \(inputText).
