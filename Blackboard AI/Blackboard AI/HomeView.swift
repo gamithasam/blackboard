@@ -21,7 +21,6 @@ struct HomeView: View {
     @State private var audioEngine: AVAudioEngine?
     @State private var showCopiedAlert = false
     @AppStorage("useAPIMode") private var useAPIMode: Bool = true
-//    @AppStorage("apiKey") private var apiKey: String = ""
 //    @AppStorage("selectedVoice") private var selectedVoice: String = "Alison Dietlinde"
     
     var body: some View {
@@ -152,6 +151,23 @@ struct HomeView: View {
                                 }
                                 inputText = ""
                                 showPrompt.toggle()
+                            } else {
+                                isProcessing = true
+                                sendPromptToOpenAI(topic: inputText) { result in
+                                   DispatchQueue.main.async { // Ensure UI updates are on the main thread if needed
+                                       switch result {
+                                       case .success(let responseText):
+                                           print("OpenAI Response: \(responseText)")
+                                           setenvpy()
+                                           let vidPath:String = engine(response: responseText)
+                                           print("Video path: \(vidPath)")
+                                           inputText = ""
+                                       case .failure(let error):
+                                           print("Error: \(error.localizedDescription)")
+                                           // Handle the error
+                                       }
+                                   }
+                                }
                             }
 //                            loadvid()
                         }
