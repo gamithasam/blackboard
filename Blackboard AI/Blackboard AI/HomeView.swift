@@ -91,66 +91,68 @@ struct HomeView: View {
                     // Enhanced magical send button
                     Button(action: {
                         withAnimation(.spring(response: 0.4, dampingFraction: 0.6)) {
-                            setenvpy()
-                            let vidPath:String = engine(response: inputText)
-                            print("Video path: \(vidPath)")
+//                            setenvpy()
+//                            let vidPath:String = engine(response: inputText)
+//                            print("Video path: \(vidPath)")
                             // Handle send action
-//                            if !useAPIMode {
-//                                if showPrompt {
-//                                    isProcessing = true
-//                                    engine(response: inputText)
-//                                    inputText = ""
-//                                } else {
-//                                    let prompt: String = """
-//                                You are an expert in creating educational animations using Manim and narration scripting. Your task is to generate content for a tool that automatically creates narrated animations about \(inputText).
-//
-//                                ## Your Response Format
-//                                Your response must follow this exact structure:
-//
-//                                -NARRATION-
-//                                [Write 7-8 clear, concise sentences explaining the concept, one per line]
-//
-//                                -MANIM-
-//                                [Your Manim code here]
-//
-//                                ## Narration Requirements
-//                                - Write exactly 7-8 sentences, each on its own line
-//                                - Each sentence should explain one step or aspect of [TOPIC]
-//                                - Keep sentences clear, concise, and educational
-//                                - Total narration should be 60-90 seconds when spoken
-//                                - Ensure a logical progression of ideas
-//
-//                                ## Manim Code Requirements
-//                                1. Use `class NarratedScene(Scene):` as your class name
-//                                2. Include synchronized audio with animations using:
-//                                   ```python
-//                                   self.add_sound("media/audio/line_0.wav")
-//                                   self.wait(#DURATION_0#)  # This placeholder will be replaced with the actual audio duration
-//                                3. For each line of narration, add corresponding animation(s) with matching audio placeholders
-//                                4. Use placeholder #DURATION_0#, #DURATION_1#, etc. for each audio line's wait time
-//                                5. Follow these layout and positioning best practices:
-//                                    - Group related objects using VGroup
-//                                    - Arrange objects appropriately with .arrange(DIRECTION, buff=spacing) where DIRECTION could be UP, DOWN, LEFT, RIGHT
-//                                    - Choose arrangement directions that make sense for your specific concept
-//                                    - Use .shift() for positioning rather than absolute coordinates
-//                                    - Place text with .next_to(object, DIRECTION, buff=value) to ensure proper spacing
-//                                    - For any connections between objects, use get_center() for proper alignment
-//                                    - Use appropriate stroke_width for lines to ensure readability
-//                                6. Use clear visual distinctions:
-//                                    - Use different colors for different types of objects
-//                                    - Size elements appropriately (font_size, radius) based on their importance
-//                                    - Position labels consistently relative to their objects
-//                                7. Ensure all imports are properly included at the top
-//                                8. Avoid hardcoded coordinates - position everything relative to other objects
-//                                Remember that your code will be executed exactly as written, so it must be syntactically correct and follow Manim conventions.
-//                                """
-//                                    NSPasteboard.general.clearContents()
-//                                    NSPasteboard.general.setString(prompt, forType: .string)
-//                                    showCopiedAlert = true
-//                                }
-//                                inputText = ""
-//                                showPrompt.toggle()
-//                            }
+                            if !useAPIMode {
+                                if showPrompt {
+                                    isProcessing = true
+                                    setenvpy()
+                                    let vidPath:String = engine(response: inputText)
+                                    print("Video path: \(vidPath)")
+                                    inputText = ""
+                                } else {
+                                    let prompt: String = """
+                                You are an expert in creating educational animations using Manim and narration scripting. Your task is to generate content for a tool that automatically creates narrated animations about \(inputText).
+
+                                ## Your Response Format
+                                Your response must follow this exact structure:
+
+                                -NARRATION-
+                                [Write 7-8 clear, concise sentences explaining the concept, one per line]
+
+                                -MANIM-
+                                [Your Manim code here]
+
+                                ## Narration Requirements
+                                - Write exactly 7-8 sentences, each on its own line
+                                - Each sentence should explain one step or aspect of [TOPIC]
+                                - Keep sentences clear, concise, and educational
+                                - Total narration should be 60-90 seconds when spoken
+                                - Ensure a logical progression of ideas
+
+                                ## Manim Code Requirements
+                                1. Use `class NarratedScene(Scene):` as your class name
+                                2. Include synchronized audio with animations using:
+                                   ```python
+                                   self.add_sound("media/audio/line_0.wav")
+                                   self.wait(#DURATION_0#)  # This placeholder will be replaced with the actual audio duration
+                                3. For each line of narration, add corresponding animation(s) with matching audio placeholders
+                                4. Use placeholder #DURATION_0#, #DURATION_1#, etc. for each audio line's wait time
+                                5. Follow these layout and positioning best practices:
+                                    - Group related objects using VGroup
+                                    - Arrange objects appropriately with .arrange(DIRECTION, buff=spacing) where DIRECTION could be UP, DOWN, LEFT, RIGHT
+                                    - Choose arrangement directions that make sense for your specific concept
+                                    - Use .shift() for positioning rather than absolute coordinates
+                                    - Place text with .next_to(object, DIRECTION, buff=value) to ensure proper spacing
+                                    - For any connections between objects, use get_center() for proper alignment
+                                    - Use appropriate stroke_width for lines to ensure readability
+                                6. Use clear visual distinctions:
+                                    - Use different colors for different types of objects
+                                    - Size elements appropriately (font_size, radius) based on their importance
+                                    - Position labels consistently relative to their objects
+                                7. Ensure all imports are properly included at the top
+                                8. Avoid hardcoded coordinates - position everything relative to other objects
+                                Remember that your code will be executed exactly as written, so it must be syntactically correct and follow Manim conventions.
+                                """
+                                    NSPasteboard.general.clearContents()
+                                    NSPasteboard.general.setString(prompt, forType: .string)
+                                    showCopiedAlert = true
+                                }
+                                inputText = ""
+                                showPrompt.toggle()
+                            }
 //                            loadvid()
                         }
                         
