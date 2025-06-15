@@ -30,7 +30,8 @@ func extractContent(response: String) throws -> (narration: String, manimCode: S
     return (narration, manimCode)
 }
 
-func engine(response: String) {
+func engine(response: String) -> String {
+    // Set up Python virtual environment before importing any Python modules
     do {
         let (narration, manimCode) = try extractContent(response: response)
         
@@ -40,15 +41,20 @@ func engine(response: String) {
             .filter { !$0.isEmpty }
         
         let sys = Python.import("sys")
-        sys.path.append(".") // Adds the current directory to Python's module search path
+        sys.path.append("/Users/gamitha/Developer/blackboard/Blackboard AI/Blackboard AI") // Adds the current directory to Python's module search path
 
         let engine = Python.import("Engine")
         
         let durations = engine.generate_audio_files(sentences)
         
         let animation = engine.generate_animation(manimCode, durations)
+        
         print("Animation generated successfully!")
+        
+        let animationPath = String(animation)
+        return animationPath ?? ""
     } catch {
         print("Error: \(error.localizedDescription)")
+        return ""
     }
 }
