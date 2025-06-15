@@ -2,4 +2,4 @@ __pycache__/
 media/
 venv/
 .DS_Store
-.xcuserstate
+*.xcuserstate
