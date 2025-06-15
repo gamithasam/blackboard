@@ -107,10 +107,10 @@ struct HomeView: View {
 //                                ## Your Response Format
 //                                Your response must follow this exact structure:
 //
-//                                ---NARRATION---
+//                                -NARRATION-
 //                                [Write 7-8 clear, concise sentences explaining the concept, one per line]
 //
-//                                ---MANIM---
+//                                -MANIM-
 //                                [Your Manim code here]
 //
 //                                ## Narration Requirements
