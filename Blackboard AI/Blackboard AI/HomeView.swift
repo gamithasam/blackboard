@@ -20,8 +20,9 @@ struct HomeView: View {
     @State private var cancellables = Set<AnyCancellable>()
     @State private var audioEngine: AVAudioEngine?
     @State private var showCopiedAlert = false
-    @AppStorage("useAPIMode") private var useAPIMode: Bool = true
     @State private var currentTopic: String = ""
+    @State private var fullScreenWindowController: FullScreenVideoWindowController?
+    @AppStorage("useAPIMode") private var useAPIMode: Bool = true
     @EnvironmentObject private var videoPlayerManager: VideoPlayerManager
     
     var body: some View {
@@ -32,17 +33,33 @@ struct HomeView: View {
             VStack {
                 ZStack {
                     if let playr = player {
-                        VideoPlayer(player: playr)
-                            .aspectRatio(16/9, contentMode: .fit)
-                            .cornerRadius(12)
+                        ZStack(alignment: .topTrailing) {
+                            VideoPlayer(player: playr)
+                                .aspectRatio(16/9, contentMode: .fit)
+                                .cornerRadius(12)
+                                .padding()
+                                .shadow(
+                                    color: .blue.opacity(0.3 + Double(audioLevel) * 0.7),
+                                    radius: 8 + CGFloat(audioLevel) * 20,
+                                    x: 0,
+                                    y: 0
+                                )
+                                .animation(.easeInOut(duration: 0.1), value: audioLevel)
+
+                            Button(action: { presentFullScreenPlayer() }) {
+                                Image(systemName: "arrow.up.left.and.arrow.down.right")
+                                    .font(.system(size: 15, weight: .medium))
+                                    .foregroundColor(.white)
+                                    .frame(width: 32, height: 32)
+                                    .background(
+                                        Circle()
+                                            .fill(.ultraThinMaterial)
+                                    )
+                                    .padding()
+                            }
+                            .buttonStyle(.plain)
                             .padding()
-                            .shadow(
-                                color: .blue.opacity(0.3 + Double(audioLevel) * 0.7),
-                                radius: 8 + CGFloat(audioLevel) * 20,
-                                x: 0,
-                                y: 0
-                            )
-                            .animation(.easeInOut(duration: 0.1), value: audioLevel)
+                        }
                     } else if isProcessing {
                         ProgressView("Generating...")
                             .progressViewStyle(CircularProgressViewStyle())
@@ -205,6 +222,16 @@ struct HomeView: View {
         .onAppear {
             setupVideoSelectionObserver()
         }
+    }
+
+    private func presentFullScreenPlayer() {
+        guard let playr = player else { return }
+        let controller = FullScreenVideoWindowController(player: playr) { [weak fullScreenWindowController] in
+            // Release the controller when the window closes
+            self.fullScreenWindowController = nil
+        }
+        self.fullScreenWindowController = controller
+        controller.showFullScreen()
     }
 
     private func setupVideoSelectionObserver() {
