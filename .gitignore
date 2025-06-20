@@ -2,5 +2,4 @@ __pycache__/
 media/
 venv/
 .DS_Store
-*.xcuserstate
 Blackboard AI/Blackboard AI.xcodeproj/project.xcworkspace/xcuserdata/

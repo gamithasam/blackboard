@@ -15,7 +15,7 @@ import time
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8')
 
-def generate_audio_files(sentences):
+def generate_audio_files(sentences, selectedVoice):
     tts = TTS(model_name="tts_models/multilingual/multi-dataset/xtts_v2")
     os.makedirs("/Users/gamitha/Documents/Blackboard/media/audio", exist_ok=True)
     durations = []
@@ -23,7 +23,7 @@ def generate_audio_files(sentences):
     for i, sentence in enumerate(sentences):
         filename = f"/Users/gamitha/Documents/Blackboard/media/audio/line_{i}.wav"
         tts.tts_to_file(text=sentence,
-                       speaker="Claribel Dervla",
+                       speaker=selectedVoice,
                        language="en",
                        file_path=filename)
 
@@ -36,16 +36,21 @@ def generate_audio_files(sentences):
     
     return durations
 
-def generate_animation(manim_code, durations):
+def generate_animation(manim_code, durations, name):
     # Replace duration placeholders in the code
     for i, duration in enumerate(durations):
         manim_code = manim_code.replace(f'#DURATION_{i}#', str(duration))
     
     scene_name = "NarratedScene"
-    temp_scene_path = "/Users/gamitha/Documents/Blackboard/temp_scene.py"
     media_dir = "/Users/gamitha/Documents/Blackboard"
-    quality = "h"  # high quality
-    output_folder = os.path.join(media_dir, "media", "videos", "temp_scene", quality)
+    temp_scene_path = os.path.join(media_dir, f"{name}.py")
+    quality = "h"
+    quality_map = {
+        "l": "480p15",
+        "m": "720p30",
+        "h": "1080p60",
+        "k": "2160p60"
+    }
     
     with open(temp_scene_path, 'w', encoding="utf-8") as f:
         f.write(manim_code)
@@ -53,7 +58,7 @@ def generate_animation(manim_code, durations):
     subprocess.run([
         'manim',
         f'-q{quality}',
-        'temp_scene.py',
+        f'{name}.py',
         scene_name
     ], cwd=media_dir)
     
@@ -63,4 +68,4 @@ def generate_animation(manim_code, durations):
     time.sleep(0.5)
 
     # Look for the most recently generated video file
-    return os.path.join(media_dir, "media", "videos", "temp_scene", quality, f"{scene_name}.mp4")
+    return os.path.join(media_dir, "media", "videos", name, quality_map[quality], f"{scene_name}.mp4")

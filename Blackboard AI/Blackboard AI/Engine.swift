@@ -30,7 +30,7 @@ func extractContent(response: String) throws -> (narration: String, manimCode: S
     return (narration, manimCode)
 }
 
-func engine(response: String) -> String {
+func engine(response: String, name: String) -> String {
     // Set up Python virtual environment before importing any Python modules
     do {
         let (narration, manimCode) = try extractContent(response: response)
@@ -45,9 +45,18 @@ func engine(response: String) -> String {
 
         let engine = Python.import("Engine")
         
-        let durations = engine.generate_audio_files(sentences)
+        let selectedVoice = UserDefaults.standard.string(forKey: "selectedVoice") ?? "Ana Florence"
         
-        let animation = engine.generate_animation(manimCode, durations)
+        let durations = engine.generate_audio_files(sentences, selectedVoice)
+
+        let fixedName = name
+            .split(separator: " ")
+            .map { $0.capitalized }
+            .joined()
+        
+        print("Fixed name: \(fixedName)")
+        
+        let animation = engine.generate_animation(manimCode, durations, fixedName)
         
         print("Animation generated successfully!")
         

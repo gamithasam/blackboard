@@ -11,7 +11,7 @@ import AVFoundation
 struct SettingsView: View {
     @AppStorage("useAPIMode") private var useAPIMode: Bool = true 
     @AppStorage("apiKey") private var apiKey: String = ""
-    @AppStorage("selectedVoice") private var selectedVoice: String = "Alison Dietlinde"
+    @AppStorage("selectedVoice") private var selectedVoice: String = "Ana Florence"
     
     @State private var isTestingAPI = false
     @State private var showAPIKey = false
