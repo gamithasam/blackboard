@@ -64,6 +64,18 @@ struct SidebarView: View {
         .navigationTitle("History")
         .onAppear {
             loadCreations()
+            // Observer for video creation notifications
+            NotificationCenter.default.addObserver(
+                forName: .videoCreationCompleted,
+                object: nil,
+                queue: .main
+            ) { _ in
+                loadCreations()
+            }
+        }
+        .onDisappear {
+            // Remove observer when view disappears
+            NotificationCenter.default.removeObserver(self, name: .videoCreationCompleted, object: nil)
         }
         .refreshable {
             loadCreations()

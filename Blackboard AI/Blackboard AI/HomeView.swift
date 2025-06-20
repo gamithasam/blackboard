@@ -100,6 +100,7 @@ struct HomeView: View {
                                      let fileURL = URL(fileURLWithPath: vidPath)
                                      loadVideo(from: fileURL)
                                      inputText = ""
+                                     NotificationCenter.default.post(name: .videoCreationCompleted, object: nil)
                                  } else {
                                      let prompt: String = """
                                  You are an expert in creating educational animations using Manim and narration scripting. Your task is to generate content for a tool that automatically creates narrated animations about \(inputText).
@@ -165,6 +166,7 @@ struct HomeView: View {
                                             let fileURL = URL(fileURLWithPath: vidPath)
                                             loadVideo(from: fileURL)
                                             inputText = ""
+                                            NotificationCenter.default.post(name: .videoCreationCompleted, object: nil)
                                         case .failure(let error):
                                             print("Error: \(error.localizedDescription)")
                                             // Handle the error
