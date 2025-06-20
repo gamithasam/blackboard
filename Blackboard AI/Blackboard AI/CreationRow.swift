@@ -10,6 +10,7 @@ import SwiftUI
 struct CreationRow: View {
     let creation: CreationItem
     @State private var isHovered = false
+    @EnvironmentObject private var videoPlayerManager: VideoPlayerManager
     
     var body: some View {
         Button(action: {
@@ -58,7 +59,7 @@ struct CreationRow: View {
                 return ["mp4", "mov", "avi", "mkv", "m4v"].contains(ext)
             }) {
                 print("CreationRow: Found video file: \(videoFile.path)")
-                // TODO: Play the video
+                videoPlayerManager.selectVideo(url: videoFile, topic: creation.topic)
             } else {
                 print("CreationRow: No video files found in directory")
             }

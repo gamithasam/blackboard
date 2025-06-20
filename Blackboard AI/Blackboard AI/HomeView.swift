@@ -22,6 +22,7 @@ struct HomeView: View {
     @State private var showCopiedAlert = false
     @AppStorage("useAPIMode") private var useAPIMode: Bool = true
     @State private var currentTopic: String = ""
+    @EnvironmentObject private var videoPlayerManager: VideoPlayerManager
     
     var body: some View {
         NavigationSplitView {
@@ -199,6 +200,19 @@ struct HomeView: View {
             }
             .background(Color.black)
         }
+        .onAppear {
+            setupVideoSelectionObserver()
+        }
+    }
+
+    private func setupVideoSelectionObserver() {
+        videoPlayerManager.$selectedVideoURL
+            .compactMap { $0 }
+            .sink { url in
+                self.loadVideo(from: url)
+                self.currentTopic = self.videoPlayerManager.selectedVideoTopic
+            }
+            .store(in: &cancellables)
     }
     
     private func setenvpy() {

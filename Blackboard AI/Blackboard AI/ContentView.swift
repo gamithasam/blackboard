@@ -8,8 +8,11 @@
 import SwiftUI
 
 struct ContentView: View {
+    @StateObject private var videoPlayerManager = VideoPlayerManager()
+
     var body: some View {
         HomeView()
+            .environmentObject(videoPlayerManager)
     }
 }
 
