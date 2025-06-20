@@ -202,7 +202,8 @@ struct HomeView: View {
     }
     
     private func setenvpy() {
-        let venvPath = "/Users/gamitha/Developer/blackboard/Blackboard AI/venv"
+        let homeDir = FileManager.default.homeDirectoryForCurrentUser.path
+        let venvPath = "\(homeDir)/Developer/blackboard/venv"
         let basePythonLib = "/opt/homebrew/Cellar/python@3.10/3.10.18/Frameworks/Python.framework/Versions/3.10/lib/libpython3.10.dylib"
 
         setenv("PYTHON_LIBRARY", basePythonLib, 1)

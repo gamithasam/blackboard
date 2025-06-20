@@ -41,7 +41,8 @@ func engine(response: String, name: String) -> String {
             .filter { !$0.isEmpty }
         
         let sys = Python.import("sys")
-        sys.path.append("/Users/gamitha/Developer/blackboard/Blackboard AI/Blackboard AI") // Adds the current directory to Python's module search path
+        let homeDir = FileManager.default.homeDirectoryForCurrentUser.path
+        sys.path.append("\(homeDir)/Developer/blackboard/Blackboard AI/Blackboard AI") // Adds the current directory to Python's module search path
 
         let engine = Python.import("Engine")
         

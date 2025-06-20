@@ -17,11 +17,13 @@ sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8')
 
 def generate_audio_files(sentences, selectedVoice):
     tts = TTS(model_name="tts_models/multilingual/multi-dataset/xtts_v2")
-    os.makedirs("/Users/gamitha/Documents/Blackboard/media/audio", exist_ok=True)
+    blackboard_dir = os.path.join(os.path.expanduser("~"), "Documents", "Blackboard")
+    audio_dir = os.path.join(blackboard_dir, "media", "audio")
+    os.makedirs(audio_dir, exist_ok=True)
     durations = []
 
     for i, sentence in enumerate(sentences):
-        filename = f"/Users/gamitha/Documents/Blackboard/media/audio/line_{i}.wav"
+        filename = os.path.join(audio_dir, f"line_{i}.wav")
         tts.tts_to_file(text=sentence,
                        speaker=selectedVoice,
                        language="en",
@@ -42,7 +44,7 @@ def generate_animation(manim_code, durations, name, quality):
         manim_code = manim_code.replace(f'#DURATION_{i}#', str(duration))
     
     scene_name = "NarratedScene"
-    media_dir = "/Users/gamitha/Documents/Blackboard"
+    media_dir = os.path.join(os.path.expanduser("~"), "Documents", "Blackboard")
     temp_scene_path = os.path.join(media_dir, f"{name}.py")
     quality_map = {
         "l": "480p15",
