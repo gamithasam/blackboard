@@ -12,6 +12,10 @@ struct CreationRow: View {
     @State private var isHovered = false
     @EnvironmentObject private var videoPlayerManager: VideoPlayerManager
     
+    private var isSelected: Bool {
+        videoPlayerManager.selectedCreationId == creation.id
+    }
+    
     var body: some View {
         Button(action: {
             playVideo()
@@ -37,7 +41,7 @@ struct CreationRow: View {
             .padding(.horizontal, 8)
             .background(
                 RoundedRectangle(cornerRadius: 6)
-                    .fill(isHovered ? Color.blue.opacity(0.1) : Color.clear)
+                    .fill(isSelected ? Color.blue.opacity(0.3) : (isHovered ? Color.blue.opacity(0.1) : Color.clear))
             )
             .onHover { hovering in
                 withAnimation(.easeInOut(duration: 0.2)) {
@@ -59,7 +63,7 @@ struct CreationRow: View {
                 return ["mp4", "mov", "avi", "mkv", "m4v"].contains(ext)
             }) {
                 print("CreationRow: Found video file: \(videoFile.path)")
-                videoPlayerManager.selectVideo(url: videoFile, topic: creation.topic)
+                videoPlayerManager.selectVideo(url: videoFile, topic: creation.topic, creationId: creation.id)
             } else {
                 print("CreationRow: No video files found in directory")
             }

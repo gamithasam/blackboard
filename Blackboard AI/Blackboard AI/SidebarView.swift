@@ -11,6 +11,7 @@ import Foundation
 struct SidebarView: View {
     @State private var creations: [CreationItem] = []
     @State private var isLoading = true
+    @EnvironmentObject private var videoPlayerManager: VideoPlayerManager
     
     var body: some View {
         NavigationView {
@@ -94,6 +95,8 @@ struct SidebarView: View {
                 await MainActor.run {
                     self.creations = creations
                     self.isLoading = false
+                    // Check if there's a pending video selection to apply
+                    self.videoPlayerManager.checkAndSelectPendingVideo(creations: creations)
                 }
             } catch {
                 await MainActor.run {

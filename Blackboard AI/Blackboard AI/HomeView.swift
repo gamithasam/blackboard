@@ -118,6 +118,7 @@ struct HomeView: View {
                                      loadVideo(from: fileURL)
                                      inputText = ""
                                      NotificationCenter.default.post(name: .videoCreationCompleted, object: nil)
+                                     selectNewlyCreatedVideo(videoPath: vidPath, topic: currentTopic)
                                  } else {
                                      let prompt: String = """
                                  You are an expert in creating educational animations using Manim and narration scripting. Your task is to generate content for a tool that automatically creates narrated animations about \(inputText).
@@ -184,6 +185,7 @@ struct HomeView: View {
                                             loadVideo(from: fileURL)
                                             inputText = ""
                                             NotificationCenter.default.post(name: .videoCreationCompleted, object: nil)
+                                            selectNewlyCreatedVideo(videoPath: vidPath, topic: currentTopic)
                                         case .failure(let error):
                                             print("Error: \(error.localizedDescription)")
                                             // Handle the error
@@ -378,6 +380,11 @@ struct HomeView: View {
         let normalizedLevel = max(0.0, min(1.0, (db + 50) / 50))
         
         return normalizedLevel
+    }
+    
+    private func selectNewlyCreatedVideo(videoPath: String, topic: String) {
+        // Set the pending selection so it can be picked up when the sidebar refreshes
+        videoPlayerManager.setPendingSelection(videoPath: videoPath, topic: topic)
     }
 }
 
