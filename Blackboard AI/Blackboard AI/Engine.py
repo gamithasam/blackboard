@@ -36,7 +36,7 @@ def generate_audio_files(sentences, selectedVoice):
     
     return durations
 
-def generate_animation(manim_code, durations, name):
+def generate_animation(manim_code, durations, name, quality):
     # Replace duration placeholders in the code
     for i, duration in enumerate(durations):
         manim_code = manim_code.replace(f'#DURATION_{i}#', str(duration))
@@ -44,7 +44,6 @@ def generate_animation(manim_code, durations, name):
     scene_name = "NarratedScene"
     media_dir = "/Users/gamitha/Documents/Blackboard"
     temp_scene_path = os.path.join(media_dir, f"{name}.py")
-    quality = "h"
     quality_map = {
         "l": "480p15",
         "m": "720p30",
@@ -52,8 +51,16 @@ def generate_animation(manim_code, durations, name):
         "k": "2160p60"
     }
     
+    print(f"Writing Manim code to {temp_scene_path}")
+    print("First few lines of code:")
+    print("\n".join(manim_code.split("\n")[:5]))
+    
     with open(temp_scene_path, 'w', encoding="utf-8") as f:
         f.write(manim_code)
+    
+    print(f"File contents after writing:")
+    with open(temp_scene_path, 'r', encoding="utf-8") as f:
+        print("\n".join(f.readlines()[:5]))
         
     subprocess.run([
         'manim',

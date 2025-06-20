@@ -8,10 +8,27 @@
 import SwiftUI
 import AVFoundation
 
+public enum VideoQuality: String, CaseIterable {
+    case sd480p15 = "l"
+    case hd720p30 = "m"
+    case fhd1080p60 = "h"
+    case uhd2160p60 = "k"
+    
+    var displayName: String {
+        switch self {
+        case .sd480p15: return "480p 15fps"
+        case .hd720p30: return "720p 30fps"
+        case .fhd1080p60: return "1080p 60fps"
+        case .uhd2160p60: return "2160p 60fps"
+        }
+    }
+}
+
 struct SettingsView: View {
     @AppStorage("useAPIMode") private var useAPIMode: Bool = true 
     @AppStorage("apiKey") private var apiKey: String = ""
     @AppStorage("selectedVoice") private var selectedVoice: String = "Ana Florence"
+    @AppStorage("videoQuality") private var videoQuality: VideoQuality = .hd720p30
     
     @State private var isTestingAPI = false
     @State private var showAPIKey = false
@@ -88,6 +105,23 @@ struct SettingsView: View {
                     .font(.headline)
             } footer: {
                 Text("Choose a voice for the narrator")
+                    .font(.caption)
+            }
+            
+            Section {
+                Picker("Quality", selection: $videoQuality) {
+                    ForEach(VideoQuality.allCases, id: \.self) { quality in
+                        Text(quality.displayName)
+                            .tag(quality)
+                    }
+                }
+                .pickerStyle(.menu)
+            } header: {
+                Label("Video Quality", systemImage: "video.fill")
+                    .foregroundColor(.secondary)
+                    .font(.headline)
+            } footer: {
+                Text("Higher quality requires more processing power")
                     .font(.caption)
             }
         }

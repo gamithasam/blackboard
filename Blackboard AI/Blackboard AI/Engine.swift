@@ -54,9 +54,9 @@ func engine(response: String, name: String) -> String {
             .map { $0.capitalized }
             .joined()
         
-        print("Fixed name: \(fixedName)")
+        let videoQuality = UserDefaults.standard.string(forKey: "videoQuality") ?? VideoQuality.hd720p30.rawValue
         
-        let animation = engine.generate_animation(manimCode, durations, fixedName)
+        let animation = engine.generate_animation(manimCode, durations, fixedName, videoQuality)
         
         print("Animation generated successfully!")
         
