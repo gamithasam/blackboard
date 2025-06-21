@@ -25,7 +25,25 @@ func extractContent(response: String) throws -> (narration: String, manimCode: S
           let manimRange = Range(manimMatch.range(at: 1), in: response) else {
         throw NSError(domain: "ExtractContentError", code: 2, userInfo: [NSLocalizedDescriptionKey: "Could not find Manim code section in ChatGPT response"])
     }
-    let manimCode = response[manimRange].trimmingCharacters(in: .whitespacesAndNewlines)
+    var manimCode = response[manimRange].trimmingCharacters(in: .whitespacesAndNewlines)
+    
+    // Remove code block syntax if present
+    if manimCode.hasPrefix("```python") {
+        manimCode = manimCode.replacingOccurrences(of: "```python", with: "", options: [.anchored])
+        // Remove the closing ```
+        if let range = manimCode.range(of: "```", options: [.backwards]) {
+            manimCode = manimCode.replacingCharacters(in: range, with: "")
+        }
+        manimCode = manimCode.trimmingCharacters(in: .whitespacesAndNewlines)
+    } else if manimCode.hasPrefix("```") {
+        // Handle case where there's no language specified
+        manimCode = manimCode.replacingOccurrences(of: "```", with: "", options: [.anchored])
+        // Remove the closing ```
+        if let range = manimCode.range(of: "```", options: [.backwards]) {
+            manimCode = manimCode.replacingCharacters(in: range, with: "")
+        }
+        manimCode = manimCode.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
 
     return (narration, manimCode)
 }
