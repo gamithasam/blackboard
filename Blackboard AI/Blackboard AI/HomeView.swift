@@ -20,6 +20,7 @@ struct HomeView: View {
     @State private var cancellables = Set<AnyCancellable>()
     @State private var audioEngine: AVAudioEngine?
     @State private var showCopiedAlert = false
+    @State private var showFailedAlert = false
     @State private var currentTopic: String = ""
     @State private var fullScreenWindowController: FullScreenVideoWindowController?
     @AppStorage("useAPIMode") private var useAPIMode: Bool = true
@@ -196,7 +197,7 @@ struct HomeView: View {
                                     case .failure(let error):
                                         print("Error: \(error.localizedDescription)")
                                         isProcessing = false
-                                        // Handle the error
+                                        showFailedAlert = true
                                     }
                                 }
                              }
@@ -224,6 +225,11 @@ struct HomeView: View {
             }
             .alert("Prompt Copied to Clipboard", isPresented: $showCopiedAlert) {
                 Button("OK", role: .cancel) {}
+            }
+            .alert("Failed to Generate Content", isPresented: $showFailedAlert) {
+                Button("OK", role: .cancel) {}
+            } message: {
+                Text("Please try again.")
             }
             .background(Color.black)
         }
