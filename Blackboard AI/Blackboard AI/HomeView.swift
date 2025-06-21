@@ -111,7 +111,6 @@ struct HomeView: View {
                             if !useAPIMode {
                                  if showPrompt {
                                      isProcessing = true
-                                     setenvpy()
                                      let vidPath: String = engine(response: inputText, name: currentTopic)
                                      print("Video path: \(vidPath)")
                                      let fileURL = URL(fileURLWithPath: vidPath)
@@ -178,7 +177,6 @@ struct HomeView: View {
                                         switch result {
                                         case .success(let responseText):
                                             print("OpenAI Response: \(responseText)")
-                                            setenvpy()
                                             let vidPath: String = engine(response: responseText, name: currentTopic)
                                             print("Video path: \(vidPath)")
                                             let fileURL = URL(fileURLWithPath: vidPath)
@@ -244,25 +242,6 @@ struct HomeView: View {
                 self.currentTopic = self.videoPlayerManager.selectedVideoTopic
             }
             .store(in: &cancellables)
-    }
-    
-    private func setenvpy() {
-        let homeDir = FileManager.default.homeDirectoryForCurrentUser.path
-        let venvPath = "\(homeDir)/Developer/blackboard/venv"
-        let basePythonLib = "/opt/homebrew/Cellar/python@3.10/3.10.18/Frameworks/Python.framework/Versions/3.10/lib/libpython3.10.dylib"
-
-        setenv("PYTHON_LIBRARY", basePythonLib, 1)
-        setenv("PYTHONPATH", "\(venvPath)/lib/python3.10/site-packages", 1)
-        setenv("PYTHONIOENCODING", "utf-8", 1)
-
-        // Add virtualenv's bin to PATH so subprocesses can find "manim"
-        let venvBin = "\(venvPath)/bin"
-        if let oldPath = getenv("PATH") {
-            let newPath = "\(venvBin):/opt/homebrew/bin:" + String(cString: oldPath)
-            setenv("PATH", newPath, 1)
-        } else {
-            setenv("PATH", "\(venvBin):/opt/homebrew/bin", 1)
-        }
     }
     
     private func loadVideo(from url: URL) {
