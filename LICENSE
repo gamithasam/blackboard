@@ -19,28 +19,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
-## Third-Party Components
-
-Blackboard AI incorporates several third-party open-source components, each with its own license:
-
-1. **Manim** - Mathematical Animation Engine: MIT License
-   - https://github.com/ManimCommunity/manim/blob/main/LICENSE
-
-2. **Coqui TTS** - Text-to-Speech Library: MPL-2.0 License 
-   - https://github.com/coqui-ai/TTS/blob/main/LICENSE.txt
-
-3. **PythonKit** - Swift framework for Python interoperability: Apache License 2.0
-   - https://github.com/pvieito/PythonKit/blob/master/LICENSE.txt
-
-4. **OpenAI API** - Usage governed by OpenAI's Terms of Use
-   - https://openai.com/policies/terms-of-use
-
-## License Compliance Note
-
-When using, modifying, or distributing this software:
-
-1. The original work created by Gamitha Samarasingha is subject to the MIT License.
-2. Third-party components maintain their original licenses and copyright notices.
-3. Any distribution must include this license file and all original copyright notices.
-4. You must comply with the terms of all licenses involved, including any third-party licenses.

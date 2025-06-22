@@ -117,8 +117,6 @@ This project incorporates third-party open-source software:
 - **PythonKit**: [Apache License 2.0](https://github.com/pvieito/PythonKit/blob/master/LICENSE.txt)
 - **OpenAI API**: Usage governed by [OpenAI's Terms of Use](https://openai.com/policies/terms-of-use)
 
-See the [LICENSE](LICENSE) file for complete details about all components.
-
 ## 🙏 Acknowledgments
 
 - **Manim**: For providing the mathematical animation framework
