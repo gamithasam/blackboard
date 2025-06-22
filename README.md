@@ -109,9 +109,7 @@ Built with Swift and SwiftUI, providing:
 
 ## 📄 License
 
-The original work in this project is licensed under the [Creative Commons Attribution-NonCommercial 4.0 International License](http://creativecommons.org/licenses/by-nc/4.0/).
-
-[![CC BY-NC 4.0][cc-by-nc-shield]][cc-by-nc]
+This project is licensed under the [MIT License](LICENSE).
 
 This project incorporates third-party open-source software:
 - **Manim**: [MIT License](https://github.com/ManimCommunity/manim/blob/main/LICENSE)
@@ -120,9 +118,6 @@ This project incorporates third-party open-source software:
 - **OpenAI API**: Usage governed by [OpenAI's Terms of Use](https://openai.com/policies/terms-of-use)
 
 See the [LICENSE](LICENSE) file for complete details about all components.
-
-[cc-by-nc]: http://creativecommons.org/licenses/by-nc/4.0/
-[cc-by-nc-shield]: https://img.shields.io/badge/License-CC%20BY--NC%204.0-lightgrey.svg
 
 ## 🙏 Acknowledgments
 
