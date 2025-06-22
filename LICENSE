@@ -14,10 +14,10 @@ Blackboard AI incorporates several third-party open-source components, each with
    - https://github.com/ManimCommunity/manim/blob/main/LICENSE
 
 2. **Coqui TTS** - Text-to-Speech Library: MPL-2.0 License 
-   - https://github.com/coqui-ai/TTS/blob/main/LICENSE
+   - https://github.com/coqui-ai/TTS/blob/main/LICENSE.txt
 
-3. **PythonKit** - Swift framework for Python interoperability: MIT License
-   - https://github.com/pvieito/PythonKit/blob/master/LICENSE
+3. **PythonKit** - Swift framework for Python interoperability: Apache License 2.0
+   - https://github.com/pvieito/PythonKit/blob/master/LICENSE.txt
 
 4. **OpenAI API** - Usage governed by OpenAI's Terms of Use
    - https://openai.com/policies/terms-of-use

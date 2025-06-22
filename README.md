@@ -115,8 +115,8 @@ The original work in this project is licensed under the [Creative Commons Attrib
 
 This project incorporates third-party open-source software:
 - **Manim**: [MIT License](https://github.com/ManimCommunity/manim/blob/main/LICENSE)
-- **Coqui TTS**: [MPL-2.0 License](https://github.com/coqui-ai/TTS/blob/main/LICENSE)
-- **PythonKit**: [MIT License](https://github.com/pvieito/PythonKit/blob/master/LICENSE)
+- **Coqui TTS**: [MPL-2.0 License](https://github.com/coqui-ai/TTS/blob/main/LICENSE.txt)
+- **PythonKit**: [Apache License 2.0](https://github.com/pvieito/PythonKit/blob/master/LICENSE.txt)
 - **OpenAI API**: Usage governed by [OpenAI's Terms of Use](https://openai.com/policies/terms-of-use)
 
 See the [LICENSE](LICENSE) file for complete details about all components.
