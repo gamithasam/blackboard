@@ -33,7 +33,7 @@ def generate_audio_files(sentences, selectedVoice):
         result = subprocess.run(
             ["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of",
              "default=noprint_wrappers=1:nokey=1", filename],
-            stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            stdout=subprocess.PIPE, stderr=subprocess.STDOUT, encoding='utf-8', errors='replace')
         durations.append(float(result.stdout))
     
     return durations
@@ -63,18 +63,30 @@ def generate_animation(manim_code, durations, name, quality):
     print(f"File contents after writing:")
     with open(temp_scene_path, 'r', encoding="utf-8") as f:
         print("\n".join(f.readlines()[:5]))
+    
+    # Set environment variables for proper encoding
+    env = os.environ.copy()
+    env['PYTHONIOENCODING'] = 'utf-8'
+    env['LC_ALL'] = 'en_US.UTF-8'
+    env['LANG'] = 'en_US.UTF-8'
         
-    subprocess.run([
+    process = subprocess.run([
         'manim',
         f'-q{quality}',
         f'{name}.py',
         scene_name
-    ], cwd=media_dir)
+    ], cwd=media_dir, capture_output=True, encoding='utf-8', errors='replace', env=env)
+
+    error_message = process.stderr if process.returncode != 0 else ""
     
-    os.remove(temp_scene_path)
+    try:
+        os.remove(temp_scene_path)
+    except FileNotFoundError:
+        pass  # File might already be removed
     
     # Wait briefly to ensure the file system has flushed the output
     time.sleep(0.5)
 
     # Look for the most recently generated video file
-    return os.path.join(media_dir, "media", "videos", name, quality_map[quality], f"{scene_name}.mp4")
+    video_path = os.path.join(media_dir, "media", "videos", name, quality_map[quality], f"{scene_name}.mp4")
+    return {"path": video_path, "error": error_message}

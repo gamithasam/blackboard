@@ -8,6 +8,11 @@
 import Foundation
 import PythonKit
 
+struct EngineResult {
+    let path: String
+    let error: String
+}
+
 func extractContent(response: String) throws -> (narration: String, manimCode: String) {
     // Extract narration
     let narrationPattern = #"-NARRATION-\n(.*?)\n\n-MANIM-"#
@@ -48,7 +53,7 @@ func extractContent(response: String) throws -> (narration: String, manimCode: S
     return (narration, manimCode)
 }
 
-func engine(response: String, name: String) -> String {
+func engine(response: String, name: String) -> EngineResult {
     // Set up Python virtual environment before importing any Python modules
     do {
         let (narration, manimCode) = try extractContent(response: response)
@@ -75,14 +80,42 @@ func engine(response: String, name: String) -> String {
         
         let videoQuality = UserDefaults.standard.string(forKey: "videoQuality") ?? VideoQuality.hd720p30.rawValue
         
-        let animation = engine.generate_animation(manimCode, durations, fixedName, videoQuality)
+        let result = engine.generate_animation(manimCode, durations, fixedName, videoQuality)
         
-        print("Animation generated successfully!")
+        let animationPath = String(result["path"]) ?? ""
+        let errorMessage = String(result["error"]) ?? ""
         
-        let animationPath = String(animation)
-        return animationPath ?? ""
+        if !errorMessage.isEmpty {
+            let filteredError = extractTraceback(from: errorMessage)
+            print("Animation generated with errors: \(filteredError)")
+        } else {
+            print("Animation generated successfully!")
+        }
+        
+        return EngineResult(path: animationPath, error: errorMessage)
     } catch {
         print("Error: \(error.localizedDescription)")
-        return ""
+        return EngineResult(path: "", error: error.localizedDescription)
     }
+}
+
+func extractTraceback(from errorMessage: String) -> String {
+    let lines = errorMessage.components(separatedBy: .newlines)
+    var tracebackLines: [String] = []
+    var inTraceback = false
+    
+    for line in lines {
+        if line.contains("Traceback (most recent call last)") {
+            inTraceback = true
+            tracebackLines.append(line)
+        } else if inTraceback {
+            tracebackLines.append(line)
+            // Stop collecting if we hit an empty line after traceback content
+            if line.trimmingCharacters(in: .whitespaces).isEmpty && !tracebackLines.isEmpty && tracebackLines.count > 3 {
+                break
+            }
+        }
+    }
+    
+    return tracebackLines.isEmpty ? errorMessage : tracebackLines.joined(separator: "\n")
 }

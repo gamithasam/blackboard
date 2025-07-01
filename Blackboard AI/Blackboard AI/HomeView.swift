@@ -118,14 +118,23 @@ struct HomeView: View {
                                      // Yield to allow UI update
                                      await Task.yield()
                                      
-                                     let vidPath: String = engine(response: responseToProcess, name: topicToProcess)
-                                     print("Video path: \(vidPath)")
-                                     let fileURL = URL(fileURLWithPath: vidPath)
-                                     self.loadVideo(from: fileURL)
-                                     self.inputText = ""
-                                     NotificationCenter.default.post(name: .videoCreationCompleted, object: nil)
-                                     selectNewlyCreatedVideo(videoPath: vidPath, topic: self.currentTopic)
-                                     self.isProcessing = false
+                                     let result = engine(response: responseToProcess, name: topicToProcess)
+                                     print("Video path: \(result.path)")
+                                     
+                                    if !result.error.isEmpty {
+                                        self.showFailedAlert = true
+                                        self.isProcessing = false
+                                        return
+                                    }
+                                    
+                                    if !result.path.isEmpty {
+                                        let fileURL = URL(fileURLWithPath: result.path)
+                                        self.loadVideo(from: fileURL)
+                                        self.inputText = ""
+                                        NotificationCenter.default.post(name: .videoCreationCompleted, object: nil)
+                                        selectNewlyCreatedVideo(videoPath: result.path, topic: self.currentTopic)
+                                    }
+                                    self.isProcessing = false
                                  }
                              } else {
                                  let prompt: String = """
@@ -186,13 +195,23 @@ struct HomeView: View {
                                     switch result {
                                     case .success(let responseText):
                                         print("OpenAI Response: \(responseText)")
-                                        let vidPath: String = engine(response: responseText, name: currentTopic)
-                                        print("Video path: \(vidPath)")
-                                        let fileURL = URL(fileURLWithPath: vidPath)
-                                        loadVideo(from: fileURL)
-                                        inputText = ""
-                                        NotificationCenter.default.post(name: .videoCreationCompleted, object: nil)
-                                        selectNewlyCreatedVideo(videoPath: vidPath, topic: currentTopic)
+                                        let result = engine(response: responseText, name: currentTopic)
+                                        print("Video path: \(result.path)")
+                                        
+                                        if !result.error.isEmpty {
+                                            print("Error generating animation: \(result.error)")
+                                            showFailedAlert = true
+                                            isProcessing = false
+                                            return
+                                        }
+                                        
+                                        if !result.path.isEmpty {
+                                            let fileURL = URL(fileURLWithPath: result.path)
+                                            loadVideo(from: fileURL)
+                                            inputText = ""
+                                            NotificationCenter.default.post(name: .videoCreationCompleted, object: nil)
+                                            selectNewlyCreatedVideo(videoPath: result.path, topic: currentTopic)
+                                        }
                                         isProcessing = false
                                     case .failure(let error):
                                         print("Error: \(error.localizedDescription)")
