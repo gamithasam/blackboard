@@ -25,6 +25,8 @@ struct HomeView: View {
     @State private var fullScreenWindowController: FullScreenVideoWindowController?
     @AppStorage("useAPIMode") private var useAPIMode: Bool = true
     @EnvironmentObject private var videoPlayerManager: VideoPlayerManager
+    @State private var tempNarration: String = """
+"""
     
     var body: some View {
         NavigationSplitView {
@@ -110,20 +112,72 @@ struct HomeView: View {
                     Button(action: {
                         if !useAPIMode {
                              if showPrompt {
+                                // Enter the response
                                  isProcessing = true
                                  let responseToProcess = inputText
                                  let topicToProcess = currentTopic
-                                 
+
                                  Task { @MainActor in
                                      // Yield to allow UI update
                                      await Task.yield()
                                      
-                                     let result = await engine(response: responseToProcess, name: topicToProcess, apiMode: false)
+                                     let result: EngineResult
+                                     
+                                     if !tempNarration.isEmpty {
+                                        let responseToProcessFix: String = combineContent(narration: tempNarration, manimCode: responseToProcess)
+                                        result = await engine(response: responseToProcessFix, name: topicToProcess, apiMode: false)
+                                     } else {
+                                        result = await engine(response: responseToProcess, name: topicToProcess, apiMode: false)
+                                     }
                                      print("Video path: \(result.path)")
                                      
                                     if !result.error.isEmpty {
+                                        let (narration, manimCode) = try extractContent(response: responseToProcess)
+                                        self.tempNarration = narration
+                                        let fixPrompt: String = """
+                                        You are an expert in Manim and Python. The following Manim code has errors. Please fix the code so it runs correctly. Only return the corrected code, nothing else.
+
+                                        ## Manim Code Requirements
+                                        1. Use `class NarratedScene(Scene):` as your class name
+                                        2. Include synchronized audio with animations using:
+                                        ```python
+                                        self.add_sound("media/audio/line_0.wav")
+                                        self.wait(#DURATION_0#)  # This placeholder will be replaced with the actual audio duration
+                                        3. For each line of narration, add corresponding animation(s) with matching audio placeholders
+                                        4. Use placeholder #DURATION_0#, #DURATION_1#, etc. for each audio line's wait time
+                                        5. Follow these layout and positioning best practices:
+                                            - Group related objects using VGroup
+                                            - Arrange objects appropriately with .arrange(DIRECTION, buff=spacing) where DIRECTION could be UP, DOWN, LEFT, RIGHT
+                                            - Choose arrangement directions that make sense for your specific concept
+                                            - Use .shift() for positioning rather than absolute coordinates
+                                            - Place text with .next_to(object, DIRECTION, buff=value) to ensure proper spacing
+                                            - For any connections between objects, use get_center() for proper alignment
+                                            - Use appropriate stroke_width for lines to ensure readability
+                                        6. Use clear visual distinctions:
+                                            - Use different colors for different types of objects
+                                            - Size elements appropriately (font_size, radius) based on their importance
+                                            - Position labels consistently relative to their objects
+                                        7. Ensure all imports are properly included at the top
+                                        8. Avoid hardcoded coordinates - position everything relative to other objects
+                                        Remember that your code will be executed exactly as written, so it must be syntactically correct and follow Manim conventions.
+
+                                        Here is the code:
+
+                                        ```python
+                                        \(manimCode)
+                                        ```
+
+                                        Here is the error message:
+
+                                        \(result.error)
+                                        """
                                         self.showFailedAlert = true
+                                        NSPasteboard.general.clearContents()
+                                        NSPasteboard.general.setString(fixPrompt, forType: .string)
+                                        showCopiedAlert = true
                                         self.isProcessing = false
+                                        self.showPrompt = true
+                                        self.currentTopic = topicToProcess
                                         return
                                     }
                                     
@@ -131,12 +185,14 @@ struct HomeView: View {
                                         let fileURL = URL(fileURLWithPath: result.path)
                                         self.loadVideo(from: fileURL)
                                         self.inputText = ""
+                                        self.tempNarration = ""
                                         NotificationCenter.default.post(name: .videoCreationCompleted, object: nil)
                                         selectNewlyCreatedVideo(videoPath: result.path, topic: self.currentTopic)
                                     }
                                     self.isProcessing = false
                                  }
                              } else {
+                                // Enter the topic
                                  let prompt: String = """
                              You are an expert in creating educational animations using Manim and narration scripting. Your task is to generate content for a tool that automatically creates narrated animations about \(inputText).
 

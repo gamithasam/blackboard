@@ -53,6 +53,22 @@ func extractContent(response: String) throws -> (narration: String, manimCode: S
     return (narration, manimCode)
 }
 
+func combineContent(narration: String, manimCode: String) -> String {
+    let formattedManimCode: String
+    if manimCode.hasPrefix("```") {
+        formattedManimCode = manimCode.trimmingCharacters(in: .whitespacesAndNewlines)
+    } else {
+        formattedManimCode = "```python\n\(manimCode.trimmingCharacters(in: .whitespacesAndNewlines))\n```"
+    }
+    return """
+    -NARRATION-
+    \(narration.trimmingCharacters(in: .whitespacesAndNewlines))
+
+    -MANIM-
+    \(formattedManimCode)
+    """
+}
+
 func extractTraceback(from errorMessage: String) -> String {
     let lines = errorMessage.components(separatedBy: .newlines)
     var tracebackLines: [String] = []
@@ -120,6 +136,7 @@ func engine(response: String, name: String, apiMode: Bool) async -> EngineResult
         } else {
             filteredError = extractTraceback(from: errorMessage)
             print("Animation generated with errors: \(filteredError)")
+            return EngineResult(path: "", error: filteredError)
         }
     } else {
         while attempt < maxAttempts {
