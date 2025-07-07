@@ -118,7 +118,7 @@ struct HomeView: View {
                                      // Yield to allow UI update
                                      await Task.yield()
                                      
-                                     let result = engine(response: responseToProcess, name: topicToProcess)
+                                     let result = await engine(response: responseToProcess, name: topicToProcess, apiMode: false)
                                      print("Video path: \(result.path)")
                                      
                                     if !result.error.isEmpty {
@@ -190,33 +190,35 @@ struct HomeView: View {
                          } else {
                              isProcessing = true
                              currentTopic = inputText // Set the topic
-                             sendPromptToOpenAI(topic: inputText) { result in
-                                DispatchQueue.main.async { // Ensure UI updates are on the main thread if needed
+                             sendPromptToOpenAI(topic: inputText, originalCode: nil, errorMessage: nil) { result in
+                                DispatchQueue.main.async {
                                     switch result {
                                     case .success(let responseText):
                                         print("OpenAI Response: \(responseText)")
-                                        let result = engine(response: responseText, name: currentTopic)
-                                        print("Video path: \(result.path)")
-                                        
-                                        if !result.error.isEmpty {
-                                            print("Error generating animation: \(result.error)")
-                                            showFailedAlert = true
-                                            isProcessing = false
-                                            return
+                                        Task { @MainActor in
+                                            let result = await engine(response: responseText, name: self.currentTopic, apiMode: true)
+                                            print("Video path: \(result.path)")
+                                            
+                                            if !result.error.isEmpty {
+                                                print("Error generating animation: \(result.error)")
+                                                self.showFailedAlert = true
+                                                self.isProcessing = false
+                                                return
+                                            }
+                                            
+                                            if !result.path.isEmpty {
+                                                let fileURL = URL(fileURLWithPath: result.path)
+                                                self.loadVideo(from: fileURL)
+                                                self.inputText = ""
+                                                NotificationCenter.default.post(name: .videoCreationCompleted, object: nil)
+                                                self.selectNewlyCreatedVideo(videoPath: result.path, topic: self.currentTopic)
+                                            }
+                                            self.isProcessing = false
                                         }
-                                        
-                                        if !result.path.isEmpty {
-                                            let fileURL = URL(fileURLWithPath: result.path)
-                                            loadVideo(from: fileURL)
-                                            inputText = ""
-                                            NotificationCenter.default.post(name: .videoCreationCompleted, object: nil)
-                                            selectNewlyCreatedVideo(videoPath: result.path, topic: currentTopic)
-                                        }
-                                        isProcessing = false
                                     case .failure(let error):
                                         print("Error: \(error.localizedDescription)")
-                                        isProcessing = false
-                                        showFailedAlert = true
+                                        self.isProcessing = false
+                                        self.showFailedAlert = true
                                     }
                                 }
                              }

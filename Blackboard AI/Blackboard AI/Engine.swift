@@ -74,49 +74,83 @@ func extractTraceback(from errorMessage: String) -> String {
     return tracebackLines.isEmpty ? errorMessage : tracebackLines.joined(separator: "\n")
 }
 
-func engine(response: String, name: String) -> EngineResult {
-    // Set up Python virtual environment before importing any Python modules
+@MainActor
+func engine(response: String, name: String, apiMode: Bool) async -> EngineResult {
+    let maxAttempts = 3
+    var attempt = 0
+    var narration: String
+    var manimCode: String
+
     do {
-        let (narration, manimCode) = try extractContent(response: response)
-        
-        let sentences = narration
-            .components(separatedBy: .newlines)
-            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
-            .filter { !$0.isEmpty }
-        
-        let sys = Python.import("sys")
-        let homeDir = FileManager.default.homeDirectoryForCurrentUser.path
-        sys.path.append("\(homeDir)/Developer/blackboard/Blackboard AI/Blackboard AI") // Adds the current directory to Python's module search path
-
-        let engine = Python.import("Engine")
-        
-        let selectedVoice = UserDefaults.standard.string(forKey: "selectedVoice") ?? "Ana Florence"
-        
-        let durations = engine.generate_audio_files(sentences, selectedVoice)
-
-        let fixedName = name
-            .split(separator: " ")
-            .map { $0.capitalized }
-            .joined()
-        
-        let videoQuality = UserDefaults.standard.string(forKey: "videoQuality") ?? VideoQuality.hd720p30.rawValue
-        
-        let result = engine.generate_animation(manimCode, durations, fixedName, videoQuality)
-        
-        let animationPath = String(result["path"]) ?? ""
-        let errorMessage = String(result["error"]) ?? ""
-        var filteredError = ""
-        
-        if !errorMessage.isEmpty {
-            filteredError = extractTraceback(from: errorMessage)
-            print("Animation generated with errors: \(filteredError)")
-        } else {
-            print("Animation generated successfully!")
-        }
-        
-        return EngineResult(path: animationPath, error: filteredError)
+        (narration, manimCode) = try extractContent(response: response)
     } catch {
         print("Error: \(error.localizedDescription)")
         return EngineResult(path: "", error: error.localizedDescription)
     }
+
+    let sentences = narration
+        .components(separatedBy: .newlines)
+        .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+        .filter { !$0.isEmpty }
+
+    // All PythonKit operations are now guaranteed to run on main thread due to @MainActor
+    let sys = Python.import("sys")
+    let homeDir = FileManager.default.homeDirectoryForCurrentUser.path
+    sys.path.append("\(homeDir)/Developer/blackboard/Blackboard AI/Blackboard AI")
+
+    let engine = Python.import("Engine")
+    let selectedVoice = UserDefaults.standard.string(forKey: "selectedVoice") ?? "Ana Florence"
+    let durations = engine.generate_audio_files(sentences, selectedVoice)
+    let fixedName = name.split(separator: " ").map { $0.capitalized }.joined()
+    let videoQuality = UserDefaults.standard.string(forKey: "videoQuality") ?? VideoQuality.hd720p30.rawValue
+
+    var animationPath = ""
+    var filteredError = ""
+    var currentCode = manimCode
+
+    if !apiMode {
+        // If not in API mode, we can directly use the engine to generate the animation
+        let result = engine.generate_animation(manimCode, durations, fixedName, videoQuality)
+        animationPath = String(result["path"]) ?? ""
+        let errorMessage = String(result["error"]) ?? ""
+
+        if errorMessage.isEmpty {
+            print("Animation generated successfully!")
+            return EngineResult(path: animationPath, error: "")
+        } else {
+            filteredError = extractTraceback(from: errorMessage)
+            print("Animation generated with errors: \(filteredError)")
+        }
+    } else {
+        while attempt < maxAttempts {
+            attempt += 1
+            let result = engine.generate_animation(currentCode, durations, fixedName, videoQuality)
+            animationPath = String(result["path"]) ?? ""
+            let errorMessage = String(result["error"]) ?? ""
+
+            if errorMessage.isEmpty {
+                print("Animation generated successfully!")
+                return EngineResult(path: animationPath, error: "")
+            } else {
+                filteredError = extractTraceback(from: errorMessage)
+                print("Attempt \(attempt): Animation generated with errors: \(filteredError)")
+
+                // Await OpenAI fix
+                do {
+                    let fixedCode = try await sendPromptToOpenAIAsync(
+                        topic: nil,
+                        originalCode: currentCode,
+                        errorMessage: filteredError
+                    )
+                    currentCode = fixedCode
+                } catch {
+                    print("OpenAI error: \(error.localizedDescription)")
+                    return EngineResult(path: "", error: filteredError)
+                }
+            }
+        }
+    }
+
+    // If we reach here, all attempts failed
+    return EngineResult(path: animationPath, error: filteredError)
 }

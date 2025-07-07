@@ -26,7 +26,9 @@ struct OpenAIResponse: Codable {
     let choices: [Choice]
 }
 
-func sendPromptToOpenAI(topic: String, completion: @escaping (Result<String, Error>) -> Void) {
+func sendPromptToOpenAI(topic: String?, originalCode: String?, errorMessage: String?, completion: @escaping (Result<String, Error>) -> Void) {
+    let errorMode = originalCode != nil && errorMessage != nil && topic == nil
+
     let apiKey = UserDefaults.standard.string(forKey: "apiKey") ?? ""
     
     guard !apiKey.isEmpty else {
@@ -44,12 +46,7 @@ func sendPromptToOpenAI(topic: String, completion: @escaping (Result<String, Err
     request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
     request.setValue("application/json", forHTTPHeaderField: "Content-Type")
 
-    let requestBody = OpenAIRequest(
-        model: "gpt-3.5-turbo", // Or any other model you prefer
-        messages: [
-            Message(
-                role: "system",
-                content: """
+    let systemPrompt = """
 You are an expert in creating educational animations using Manim and narration scripting. Your task is to generate content for a tool that automatically creates narrated animations about a given topic.
 
 ## Your Response Format
@@ -92,8 +89,50 @@ Your response must follow this exact structure:
 8. Avoid hardcoded coordinates - position everything relative to other objects
 Remember that your code will be executed exactly as written, so it must be syntactically correct and follow Manim conventions.
 """
-            ),
-            Message(role: "user", content: topic)
+    let systemPromptError = """
+You are an expert in Manim and Python. The following Manim code has errors. Please fix the code so it runs correctly. Only return the corrected code, nothing else.
+
+## Manim Code Requirements
+1. Use `class NarratedScene(Scene):` as your class name
+2. Include synchronized audio with animations using:
+   ```python
+   self.add_sound("media/audio/line_0.wav")
+   self.wait(#DURATION_0#)  # This placeholder will be replaced with the actual audio duration
+3. For each line of narration, add corresponding animation(s) with matching audio placeholders
+4. Use placeholder #DURATION_0#, #DURATION_1#, etc. for each audio line's wait time
+5. Follow these layout and positioning best practices:
+    - Group related objects using VGroup
+    - Arrange objects appropriately with .arrange(DIRECTION, buff=spacing) where DIRECTION could be UP, DOWN, LEFT, RIGHT
+    - Choose arrangement directions that make sense for your specific concept
+    - Use .shift() for positioning rather than absolute coordinates
+    - Place text with .next_to(object, DIRECTION, buff=value) to ensure proper spacing
+    - For any connections between objects, use get_center() for proper alignment
+    - Use appropriate stroke_width for lines to ensure readability
+6. Use clear visual distinctions:
+    - Use different colors for different types of objects
+    - Size elements appropriately (font_size, radius) based on their importance
+    - Position labels consistently relative to their objects
+7. Ensure all imports are properly included at the top
+8. Avoid hardcoded coordinates - position everything relative to other objects
+Remember that your code will be executed exactly as written, so it must be syntactically correct and follow Manim conventions.
+"""
+    let userPromptError = """
+Here is the code:
+
+```python
+\(originalCode ?? "")
+```
+
+Here is the error message:
+
+\(errorMessage ?? "")
+"""
+
+    let requestBody = OpenAIRequest(
+        model: "gpt-3.5-turbo", // Or any other model you prefer
+        messages: [
+            Message(role: "system", content: errorMode ? systemPromptError : systemPrompt),
+            Message(role: "user", content: errorMode ? userPromptError : topic!)
         ]
     )
 
@@ -135,4 +174,17 @@ Remember that your code will be executed exactly as written, so it must be synta
         }
     }
     task.resume()
+}
+
+func sendPromptToOpenAIAsync(topic: String?, originalCode: String?, errorMessage: String?) async throws -> String {
+    return try await withCheckedThrowingContinuation { continuation in
+        sendPromptToOpenAI(topic: topic, originalCode: originalCode, errorMessage: errorMessage) { result in
+            switch result {
+            case .success(let content):
+                continuation.resume(returning: content)
+            case .failure(let error):
+                continuation.resume(throwing: error)
+            }
+        }
+    }
 }
