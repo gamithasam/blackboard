@@ -11,6 +11,8 @@ import Foundation
 struct SidebarView: View {
     @State private var creations: [CreationItem] = []
     @State private var isLoading = true
+    @State private var itemToDelete: CreationItem?
+    @State private var showDeleteAlert = false
     @EnvironmentObject private var videoPlayerManager: VideoPlayerManager
     
     var body: some View {
@@ -56,6 +58,14 @@ struct SidebarView: View {
                     List {
                         ForEach(creations, id: \.self) { creation in
                             CreationRow(creation: creation)
+                                .contextMenu {
+                                    Button(role: .destructive) {
+                                        itemToDelete = creation
+                                        showDeleteAlert = true
+                                    } label: {
+                                        Label("Delete", systemImage: "trash")
+                                    }
+                                }
                         }
                     }
                     .listStyle(SidebarListStyle())
@@ -80,6 +90,14 @@ struct SidebarView: View {
         }
         .refreshable {
             loadCreations()
+        }
+        .alert("Delete Video?", isPresented: $showDeleteAlert, presenting: itemToDelete) { item in
+            Button("Delete", role: .destructive) {
+                deleteCreation(item)
+            }
+            Button("Cancel", role: .cancel) { }
+        } message: { item in
+            Text("Are you sure you want to delete \"\(item.topic) - \(item.quality)\"? This action cannot be undone.")
         }
     }
     
@@ -164,6 +182,17 @@ struct SidebarView: View {
         }
         
         return creations.sorted { $0.createdDate > $1.createdDate }
+    }
+
+    private func deleteCreation(_ creation: CreationItem) {
+        let fileManager = FileManager.default
+        do {
+            try fileManager.removeItem(at: creation.path)
+            // Remove from UI
+            creations.removeAll { $0 == creation }
+        } catch {
+            print("Failed to delete: \(error)")
+        }
     }
 }
 
