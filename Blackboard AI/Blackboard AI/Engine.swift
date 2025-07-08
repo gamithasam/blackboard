@@ -88,6 +88,14 @@ func extractTraceback(from errorMessage: String) -> String {
     return tracebackLines.isEmpty ? errorMessage : tracebackLines.joined(separator: "\n")
 }
 
+func cleanCode(manimCode: String) -> String {
+    let cleanedCode = manimCode
+        .replacingOccurrences(of: "```python", with: "")
+        .replacingOccurrences(of: "```",       with: "")
+    
+    return cleanedCode
+}
+
 @MainActor
 func engine(response: String, name: String, apiMode: Bool) async -> EngineResult {
     let maxAttempts = 3
@@ -157,7 +165,7 @@ func engine(response: String, name: String, apiMode: Bool) async -> EngineResult
                         originalCode: currentCode,
                         errorMessage: filteredError
                     )
-                    currentCode = fixedCode
+                    currentCode = cleanCode(manimCode: fixedCode)
                 } catch {
                     print("OpenAI error: \(error.localizedDescription)")
                     return EngineResult(path: "", error: filteredError)
