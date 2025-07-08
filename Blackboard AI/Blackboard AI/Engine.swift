@@ -54,18 +54,16 @@ func extractContent(response: String) throws -> (narration: String, manimCode: S
 }
 
 func combineContent(narration: String, manimCode: String) -> String {
-    let formattedManimCode: String
-    if manimCode.hasPrefix("```") {
-        formattedManimCode = manimCode.trimmingCharacters(in: .whitespacesAndNewlines)
-    } else {
-        formattedManimCode = "```python\n\(manimCode.trimmingCharacters(in: .whitespacesAndNewlines))\n```"
-    }
+    let cleanedCode = manimCode
+        .replacingOccurrences(of: "```python", with: "")
+        .replacingOccurrences(of: "```",       with: "")
+
     return """
     -NARRATION-
-    \(narration.trimmingCharacters(in: .whitespacesAndNewlines))
+    \(narration)
 
     -MANIM-
-    \(formattedManimCode)
+    \(cleanedCode)
     """
 }
 
