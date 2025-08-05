@@ -115,10 +115,8 @@ func engine(response: String, name: String, apiMode: Bool) async -> EngineResult
         .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
         .filter { !$0.isEmpty }
 
-    // All PythonKit operations are now guaranteed to run on main thread due to @MainActor
-    let sys = Python.import("sys")
-    let homeDir = FileManager.default.homeDirectoryForCurrentUser.path
-    sys.path.append("\(homeDir)/Developer/blackboard/Blackboard AI/Blackboard AI")
+    // Initialize embedded Python environment
+    PythonManager.shared.initializePython()
 
     let engine = Python.import("Engine")
     let selectedVoice = UserDefaults.standard.string(forKey: "selectedVoice") ?? "Ana Florence"

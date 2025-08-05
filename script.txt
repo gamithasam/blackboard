@@ -1,7 +1,0 @@
-The Pythagorean Theorem is a fundamental principle in geometry.
-It applies only to right-angled triangles.
-According to the theorem, the square of the hypotenuse is equal to the sum of the squares of the other two sides.
-Let's draw a right triangle with side lengths 3, 4, and 5.
-Now, we build a square on each side of the triangle.
-Observe that the area of the square on the hypotenuse is equal to the sum of the areas of the other two squares.
-This confirms the Pythagorean Theorem visually.
